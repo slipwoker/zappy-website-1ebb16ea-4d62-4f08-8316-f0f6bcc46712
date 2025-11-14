@@ -1447,3 +1447,149 @@ body.accessibility-widget-visible ._access-menu {
     padding: 1.5rem;
   }
 }
+
+/* Component styles from page: /about */
+.location-map-section {
+  padding: 4rem 0;
+  background: #fafafa;
+}
+
+.location-map-section h2 {
+  font-family: 'Rubik', 'Noto Sans Hebrew', Arial, sans-serif;
+  font-size: 2.5rem;
+  color: var(--text-color);
+  margin-bottom: 2.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.location-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.location-info {
+  background: var(--white);
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.location-details {
+  margin-bottom: 2rem;
+}
+
+.location-item {
+  margin-bottom: 2rem;
+}
+
+.location-item:last-child {
+  margin-bottom: 0;
+}
+
+.location-item strong {
+  display: block;
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-family: 'Rubik', 'Noto Sans Hebrew', Arial, sans-serif;
+}
+
+.location-item p {
+  color: var(--text-color);
+  line-height: 1.7;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.get-directions-btn {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 6px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: 'Rubik', 'Noto Sans Hebrew', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(107, 142, 35, 0.2);
+}
+
+.get-directions-btn:hover {
+  background: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
+}
+
+.map-placeholder {
+  background: #e5e7eb;
+  border-radius: 8px;
+  min-height: 450px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.map-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+  color: var(--white);
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.map-overlay:hover {
+  opacity: 0.95;
+}
+
+.map-overlay p {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-family: 'Rubik', 'Noto Sans Hebrew', Arial, sans-serif;
+}
+
+.map-overlay small {
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .location-map-section {
+    padding: 3rem 0;
+  }
+
+  .location-map-section h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .location-wrapper {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .location-info {
+    padding: 2rem;
+  }
+
+  .map-placeholder {
+    min-height: 350px;
+  }
+
+  .get-directions-btn {
+    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+  }
+}
