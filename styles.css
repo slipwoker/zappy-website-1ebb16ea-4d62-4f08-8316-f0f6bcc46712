@@ -1380,3 +1380,105 @@ body.accessibility-widget-visible ._access-menu {
     display: none !important;
   }
 }
+
+/* Component styles from page: / */
+.blank-text-image-section {
+  padding: 4rem 0;
+  background-color: #fafafa;
+}
+
+.blank-text-image-section .container {
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.blank-text-image-section .content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.blank-text-image-section .text-column {
+  direction: rtl;
+}
+
+.blank-text-image-section .text-placeholder {
+  background: linear-gradient(135deg, #6b8e23 0%, #4a7c59 100%) !important;
+  border: none;
+  border-radius: 12px;
+  padding: 3rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  color: #ffffff;
+}
+
+.blank-text-image-section .placeholder-title {
+  font-family: 'Rubik', 'Noto Sans Hebrew', Arial, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+.blank-text-image-section .placeholder-text {
+  font-family: 'Rubik', 'Noto Sans Hebrew', Arial, sans-serif;
+  color: #ffffff !important;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  opacity: 0.95;
+}
+
+.blank-text-image-section .image-placeholder {
+  width: 100%;
+  min-height: 350px;
+  background: #f5f5dc;
+  border: 2px dashed #8b7355;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.blank-text-image-section .placeholder-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .blank-text-image-section {
+    padding: 3rem 0;
+  }
+  
+  .blank-text-image-section .container {
+    padding: 0 20px;
+  }
+  
+  .blank-text-image-section .content-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .blank-text-image-section .text-placeholder {
+    padding: 2rem;
+  }
+  
+  .blank-text-image-section .placeholder-title {
+    font-size: 1.5rem;
+  }
+  
+  .blank-text-image-section .placeholder-text {
+    font-size: 1rem;
+  }
+  
+  .blank-text-image-section .image-placeholder {
+    min-height: 250px;
+  }
+}

@@ -56,10 +56,212 @@
   opacity: 0.7;
 }</style>
     <!-- Cookie Consent -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css">
     <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.umd.js"></script>
     <!-- Mickidum Accessibility Toolbar -->
     <script src="https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js"></script>
+<!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: '1ebb16ea-4d62-4f08-8316-f0f6bcc46712',
+    apiUrl: 'https://api.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        trackEvent('click', {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        });
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        trackEvent('navigation', {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        });
+      }
+    }, true);
+  }
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -72,22 +274,22 @@
     <div class="container nav-container">
       <div class="nav-brand">
         <a href="/" class="logo-link">
-          <img src="assets/logo.webp" alt="חוצות הזורע" class="logo" />
+          <img src="assets/logo.webp" alt="חוצות הזורע" class="logo">
         </a>
       </div>
       
       <button class="mobile-toggle" id="mobileToggle" aria-label="תפריט">
         <svg class="hamburger-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <svg class="close-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: none;">
-          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
       
       <button class="phone-header-btn" aria-label="התקשרו אלינו">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
         </svg>
       </button>
       
@@ -114,7 +316,28 @@
     </div>
   </section>
 
-  <section class="intro-section">
+  
+
+<html><head></head><body><section class="blank-text-image-section" data-zappy-component="true" data-component-id="a706b45e-0a0b-47ff-b380-0612cf31b786">
+  <div class="container">
+    <div class="content-grid">
+      <div class="text-column">
+        <div class="text-placeholder">
+          <h3 class="placeholder-title">כותרת שלך כאן</h3>
+          <p class="placeholder-text">הוסף את התוכן שלך כאן. לחץ לעריכה. תוכל להוסיף טקסט, תיאורים, רשימות ועוד תוכן רלוונטי לעסק שלך.</p>
+        </div>
+      </div>
+      <div class="image-column">
+        <div class="image-placeholder">
+          <img data-placeholder="content-1" data-context="Related to outdoor shopping mall, green spaces, or family activities" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='350' viewBox='0 0 400 350'%3E%3Crect width='400' height='350' fill='%23f5f5dc'/%3E%3Cpath d='M150 125 L200 175 L250 125 M200 175 L200 225' stroke='%236b8e23' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='280' cy='140' r='15' fill='%238b7355' opacity='0.3'/%3E%3Ctext x='200' y='270' font-family='Rubik, sans-serif' font-size='14' fill='%232c3e50' text-anchor='middle'%3Eתמונה%3C/text%3E%3C/svg%3E" alt="תמונה מציינת מקום" class="placeholder-img">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>    <script src="script.js"></script>
+</body></html>
+
+<section class="intro-section">
     <div class="container">
       <h2>למה לבחור בחוצות הזורע?</h2>
       <p>חוצות הזורע הוא קניון פתוח ייחודי המציע חוויית קנייה ובילוי שונה מהמקובל. אנחנו משלבים מרחבים ירוקים, אדריכלות ידידותית לסביבה ומגוון עשיר של חנויות ושירותים. הקניון הפתוח שלנו מתאים במיוחד למשפחות המחפשות פעילויות פנאי, לבעלי עסקים המעוניינים בחללים להשכרה איכוtiים, ולכל מי שמעריך שילוב של קנייה עם חיבור לטבע.</p>
@@ -184,7 +407,7 @@
     </div>
   </section>
 
-  <a href="#" target="_blank" class="whatsapp-float" aria-label="WhatsApp" rel="noopener noreferrer" style="display:none;" style="display:none;" style="display:none;">
+  <a href="#" target="_blank" class="whatsapp-float" aria-label="WhatsApp" rel="noopener noreferrer" style="display:none;">
     <i class="fab fa-whatsapp"></i>
   </a>
 
@@ -196,9 +419,9 @@
           <div class="all-rights-reserved">
             <p>© 2025 חוצות הזורע. כל הזכויות שמורות.</p>
           </div>
-          <div class="footer-social"><a href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook" style="display:none;" style="display:none;" style="display:none;"><i class="fab fa-facebook"></i></a>
-<a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style="display:none;" style="display:none;" style="display:none;"><i class="fab fa-instagram"></i></a>
-<a href="#" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" style="display:none;" style="display:none;" style="display:none;"><i class="fab fa-whatsapp"></i></a></div>
+          <div class="footer-social"><a href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook" style="display:none;"><i class="fab fa-facebook"></i></a>
+<a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" style="display:none;"><i class="fab fa-instagram"></i></a>
+<a href="#" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" style="display:none;"><i class="fab fa-whatsapp"></i></a></div>
           <div class="footer-legal">
             <a href="privacy.html" aria-label="מדיניות פרטיות">
               מדיניות פרטיות
@@ -252,5 +475,4 @@
 })();
 </script>
     <div data-integration="accessibility:toolbar"></div>
-    <script src="script.js"></script>
 </body></html>
