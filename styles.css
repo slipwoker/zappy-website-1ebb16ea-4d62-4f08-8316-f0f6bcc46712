@@ -1395,3 +1395,16 @@ body.accessibility-widget-visible ._access-menu {
 /* Full-width section */
 .map-preview { width: 100%; margin: 0; padding: 3rem 0; }
 .map-preview .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+
+/* Component styles from page: / */
+
+
+        .blank-image-rounded { padding: 4rem 1.5rem; background: #f9fafb; font-family: var(--font-family); display: flex; align-items: center; justify-content: center; }
+        .rounded-placeholder { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .icon { font-size: 4rem; }
+      
+
+/* Full-width section */
+.blank-preview { width: 100%; margin: 0; padding: 3rem 0; }
+.blank-preview .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
