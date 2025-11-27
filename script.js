@@ -395,3 +395,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+/* Added Component Script */
+// Optional: Add interactive map click functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const mapWrapper = document.querySelector('.map-wrapper');
+  
+  if (mapWrapper) {
+    mapWrapper.addEventListener('click', function() {
+      window.open('https://maps.google.com', '_blank');
+    });
+    
+    mapWrapper.style.cursor = 'pointer';
+  }
+});
